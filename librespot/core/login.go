@@ -87,10 +87,10 @@ func LoginDiscoveryBlobFile(cacheBlobPath, deviceName string) (*Session, error) 
 // Login to Spotify using the OAuth method
 func LoginOAuth(deviceName string, clientId string, clientSecret string) (*Session, error) {
 	token := getOAuthToken(clientId, clientSecret)
-	return loginOAuthToken(token.AccessToken, deviceName)
+	return LoginOAuthToken(token.AccessToken, deviceName)
 }
 
-func loginOAuthToken(accessToken string, deviceName string) (*Session, error) {
+func LoginOAuthToken(accessToken string, deviceName string) (*Session, error) {
 	s, err := setupSession()
 	if err != nil {
 		return s, err

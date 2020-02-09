@@ -105,6 +105,13 @@ func main() {
 				funcTrack(session, cmds[1])
 			}
 
+		case "key":
+			if len(cmds) < 2 {
+				fmt.Println("You must specify the Base62 Spotify ID of the track")
+			} else {
+				funcKey(session, cmds[1])
+			}
+
 		case "artist":
 			if len(cmds) < 2 {
 				fmt.Println("You must specify the Base62 Spotify ID of the artist")
@@ -142,6 +149,7 @@ func printHelp() {
 	fmt.Println("\nAvailable commands:")
 	fmt.Println("play <track>:                   play specified track by spotify base62 id")
 	fmt.Println("track <track>:                  show details on specified track by spotify base62 id")
+	fmt.Println("key <track>:                    show the AES key for the specified track by spotify base62 id")
 	fmt.Println("album <album>:                  show details on specified album by spotify base62 id")
 	fmt.Println("artist <artist>:                show details on specified artist by spotify base62 id")
 	fmt.Println("search <keyword>:               start a search on the specified keyword")
@@ -159,6 +167,43 @@ func funcTrack(session *core.Session, trackID string) {
 	}
 
 	fmt.Println("Track title: ", track.GetName())
+}
+
+func funcKey(session *core.Session, trackID string) {
+	fmt.Println("Getting key for track: ", trackID)
+
+	// Get the track metadata: it holds information about which files and encodings are available
+	track, err := session.Mercury().GetTrack(utils.Base62ToHex(trackID))
+	if err != nil {
+		fmt.Println("Error loading track: ", err)
+		return
+	}
+
+	// Select the highest quality OGG file available.
+	var selectedFile *Spotify.AudioFile
+	var selectedFormat Spotify.AudioFile_Format
+	for _, file := range track.GetFile() {
+		format := file.GetFormat()
+		if (format == Spotify.AudioFile_OGG_VORBIS_96 && selectedFile == nil) ||
+			(format == Spotify.AudioFile_OGG_VORBIS_160 && (selectedFile == nil || selectedFormat == Spotify.AudioFile_OGG_VORBIS_96)) ||
+			format == Spotify.AudioFile_OGG_VORBIS_320 {
+			selectedFormat = format
+			selectedFile = file
+		}
+	}
+
+        if selectedFile == nil {
+          fmt.Println("Could not find OGG format")
+          return
+        }
+
+	key, err := session.Player().LoadTrackKey(track.GetGid(), selectedFile.FileId)
+	if err != nil {
+		fmt.Printf("Error while loading key: %s\n", err)
+		return
+	}
+
+	fmt.Println(utils.ConvertTo62(key))
 }
 
 func funcArtist(session *core.Session, artistID string) {

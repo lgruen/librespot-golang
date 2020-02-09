@@ -54,7 +54,7 @@ func (p *Player) LoadTrackWithIdAndFormat(fileId []byte, format Spotify.AudioFil
 	return audioFile, err
 }
 
-func (p *Player) loadTrackKey(trackId []byte, fileId []byte) ([]byte, error) {
+func (p *Player) LoadTrackKey(trackId []byte, fileId []byte) ([]byte, error) {
 	seqInt, seq := p.mercury.NextSeqWithInt()
 
 	p.seqChans.Store(seqInt, make(chan []byte))

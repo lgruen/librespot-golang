@@ -187,7 +187,7 @@ func (a *AudioFile) hasChunk(index int) bool {
 }
 
 func (a *AudioFile) loadKey(trackId []byte) error {
-	key, err := a.player.loadTrackKey(trackId, a.fileId)
+	key, err := a.player.LoadTrackKey(trackId, a.fileId)
 	if err != nil {
 		fmt.Printf("[audiofile] Unable to load key: %s\n", err)
 		return err
